@@ -1,0 +1,33 @@
+[package]
+name = "solution"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rocket = { version = "=0.5.0-rc.4", features = [
+  "secrets",
+  "tls",
+  "mtls",
+  "json",
+] }
+
+rocket_dyn_templates = { version = "=0.1.0-rc.4", features = ["handlebars"] }
+
+serde = { version = "1.0.192", features = ["derive"] }
+
+diesel = { version = "2.1.4" }
+diesel_migrations = "2.1.0"
+
+[dependencies.rocket_db_pools]
+version = "=0.1.0-rc.4"
+features = ["diesel_postgres", "sqlx_postgres"]
+
+[dependencies.sqlx]
+version = "0.7.2"
+default-features = false
+features = ["macros", "migrate"]
+
+[profile.dev.package.sqlx-macros]
+opt-level = 3

@@ -1,0 +1,43 @@
+[default]
+address = "127.0.0.1"
+port = 8000
+workers = 16
+max_blocking = 512
+keep_alive = 5
+ident = "Rocket"
+ip_header = "X-Real-IP"                                     # set to `false` to disable
+log_level = "normal"
+temp_dir = "/tmp"
+cli_colors = true
+secret_key = "KPHHDCc+Cr6IUfZlgAiG7q/7m5f//oIcdC4Bj2P6LwE="
+
+[default.limits]
+form = "64 kB"
+json = "1 MiB"
+msgpack = "2 MiB"
+"file/jpg" = "5 MiB"
+
+[default.tls]
+certs = "certs/rsa_sha256_cert.pem"
+key = "certs/rsa_sha256_key.pem"
+
+[default.tls.mutual]
+ca_certs = "certs/ca_cert.pem"
+mandatory = false
+
+[rsa_sha256.tls]
+certs = "certs/rsa_sha256_cert.pem"
+key = "certs/rsa_sha256_key.pem"
+
+[default.shutdown]
+ctrlc = true
+signals = ["term", "hup"]
+grace = 5
+mercy = 5
+
+
+[default.databases.diesel_postgres]
+url = "postgresql://postgres:123456@localhost:5432/postgres"
+
+[default.databases.sqlx]
+url = "postgresql://postgres:123456@localhost:5432/postgres"
