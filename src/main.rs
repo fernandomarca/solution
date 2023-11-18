@@ -1,4 +1,5 @@
 use db::Db;
+use dotenvy::dotenv;
 use rocket::http::Status;
 use rocket::Request;
 use rocket_db_pools::Database;
@@ -13,7 +14,12 @@ mod middler;
 mod posts;
 
 use db::DbSqlx;
+use middler::RemoveServerHeader;
 use posts::create;
+use posts::create2;
+use posts::find;
+use posts::find_all;
+use rocket_async_compression::Compression;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -22,12 +28,16 @@ fn index() -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
+    dotenv().expect(".env file not found");
+
     rocket::build()
         .attach(Db::init())
         .attach(DbSqlx::init())
+        .attach(RemoveServerHeader)
         .attach(Template::fairing())
+        .attach(Compression::fairing())
         .register("/", catchers![internal_error, not_found, default])
-        .mount("/", routes![index, create])
+        .mount("/", routes![index, create, create2, find, find_all])
 }
 
 #[catch(500)]

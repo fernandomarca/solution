@@ -1,3 +1,6 @@
+use rocket::fairing::Fairing;
+use rocket::fairing::Info;
+use rocket::fairing::Kind;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome};
 use rocket::response;
@@ -53,5 +56,21 @@ impl<'r> Responder<'r, 'static> for MyResult {
                 .ok(),
             MyResult::Redirect(r) => r.respond_to(req),
         }
+    }
+}
+
+pub struct RemoveServerHeader;
+
+#[rocket::async_trait]
+impl Fairing for RemoveServerHeader {
+    fn info(&self) -> Info {
+        Info {
+            name: "Remove Server header",
+            kind: Kind::Response,
+        }
+    }
+
+    async fn on_response<'r>(&self, _req: &'r Request<'_>, response: &mut Response<'r>) {
+        response.remove_header("Server");
     }
 }

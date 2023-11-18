@@ -14,11 +14,14 @@ rocket = { version = "=0.5.0-rc.4", features = [
 ] }
 
 rocket_dyn_templates = { version = "=0.1.0-rc.4", features = ["handlebars"] }
+rocket_async_compression = "0.5.0"
 
 serde = { version = "1.0.192", features = ["derive"] }
 
 diesel = { version = "2.1.4" }
 diesel_migrations = "2.1.0"
+
+dotenvy = "0.15.7"
 
 [dependencies.rocket_db_pools]
 version = "=0.1.0-rc.4"
