@@ -8,11 +8,13 @@ use rocket_dyn_templates::Template;
 #[macro_use]
 extern crate rocket;
 
+mod adapters;
 mod db;
 mod main_example;
 mod middler;
 mod posts;
 
+use adapters::rabbitmq_adapter::RabbitMqAdapter;
 use db::DbSqlx;
 use middler::RemoveServerHeader;
 use posts::create;
@@ -20,6 +22,7 @@ use posts::create2;
 use posts::find;
 use posts::find_all;
 use rocket_async_compression::Compression;
+use rocket_db_pools::Config;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -27,10 +30,25 @@ fn index() -> &'static str {
 }
 
 #[launch]
-fn rocket() -> _ {
+async fn rocket() -> _ {
     dotenv().expect(".env file not found");
+    let figment = rocket::Config::figment().merge((
+        "databases.sqlx",
+        Config {
+            max_connections: 20,
+            connect_timeout: 1,
+            idle_timeout: None,
+            min_connections: Some(10),
+            url: std::env::var("DATABASE_URL").expect("DATABASE_URL"),
+        },
+    ));
+
+    let rabbitmq = RabbitMqAdapter::new().await;
+    let _queue_stream = rabbitmq.create_stream("stream", 1).await;
+    let _handler = rabbitmq.consumer("stream", None).await;
 
     rocket::build()
+        .configure(figment)
         .attach(Db::init())
         .attach(DbSqlx::init())
         .attach(RemoveServerHeader)

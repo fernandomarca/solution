@@ -1,3 +1,4 @@
+use crate::adapters::rabbitmq_adapter::RabbitMqAdapter;
 use crate::db::schema::posts;
 use crate::db::DbSqlx;
 use diesel::prelude::*;
@@ -94,6 +95,19 @@ pub async fn find_all(mut db: Connection<DbSqlx>) -> Result<Json<Vec<Post>>> {
     .await?;
 
     debug!("find_post: {:?}", find_post);
+
+    let rabbitmq = RabbitMqAdapter::new().await;
+
+    for post in &find_post {
+        let data = serde_json::to_vec(&post).unwrap();
+        let _r = rabbitmq
+            .publish(data.to_vec().as_ref(), "stream")
+            .await
+            .map_err(|e| {
+                error!("publish find: {:?}", e);
+                e
+            });
+    }
 
     Ok(Json(find_post))
 }

@@ -17,21 +17,22 @@ json = "1 MiB"
 msgpack = "2 MiB"
 "file/jpg" = "5 MiB"
 
-# [default.tls]
-# certs = "certs/rsa_sha256_cert.pem"
-# key = "certs/rsa_sha256_key.pem"
-
 [default.tls]
-certs = "certs/localhost.pem"
-key = "certs/localhost-key.pem"
+certs = "certs/rsa_sha256_cert.pem"
+key = "certs/rsa_sha256_key.pem"
 
-[default.tls.mutual]
-ca_certs = "certs/localhost.pem"
-mandatory = false
+# [default.tls]
+# certs = "certs/localhost.pem"
+# key = "certs/localhost-key.pem"
 
-[rsa_sha256.tls]
-certs = "certs/localhost.pem"
-key = "certs/localhost-key.pem"
+# [default.tls.mutual]
+# ca_certs = "certs/localhost.pem"
+# mandatory = false
+
+# [rsa_sha256.tls]
+# certs = "certs/localhost.pem"
+# key = "certs/localhost-key.pem"
+
 
 [default.shutdown]
 ctrlc = true
