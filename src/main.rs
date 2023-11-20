@@ -23,6 +23,8 @@ use posts::find;
 use posts::find_all;
 use rocket_async_compression::Compression;
 use rocket_db_pools::Config;
+use serde_json::Value;
+use std::collections::HashMap;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -45,7 +47,19 @@ async fn rocket() -> _ {
 
     let rabbitmq = RabbitMqAdapter::new().await;
     let _queue_stream = rabbitmq.create_stream("stream", 1).await;
-    let _handler = rabbitmq.consumer("stream", None).await;
+    let _handler = rabbitmq
+        .consumer("stream", None, |delivery| async move {
+            println!(
+                "message {:?} with offset {}",
+                delivery
+                    .message()
+                    .data()
+                    .map(serde_json::from_slice::<Value>)
+                    .unwrap(),
+                delivery.offset()
+            );
+        })
+        .await;
 
     rocket::build()
         .configure(figment)

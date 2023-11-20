@@ -3,6 +3,7 @@ use chrono::Utc;
 use rabbitmq_stream_client::error::ProducerPublishError;
 use rabbitmq_stream_client::error::StreamCreateError;
 use rabbitmq_stream_client::types::ByteCapacity;
+use rabbitmq_stream_client::types::Delivery;
 use rabbitmq_stream_client::types::Message;
 use rabbitmq_stream_client::types::OffsetSpecification;
 use rabbitmq_stream_client::ConsumerHandle;
@@ -10,6 +11,7 @@ use rabbitmq_stream_client::Environment;
 use rabbitmq_stream_client::TlsConfiguration;
 use rocket::futures::StreamExt;
 use rocket::tokio::task;
+use std::future::Future;
 
 pub struct RabbitMqAdapter {
     pub environment: Environment,
@@ -89,7 +91,16 @@ impl RabbitMqAdapter {
         }
     }
 
-    pub async fn consumer(&self, stream_name: &str, offset: Option<Offset>) -> ConsumerHandle {
+    pub async fn consumer<F, Fut>(
+        &self,
+        stream_name: &str,
+        offset: Option<Offset>,
+        callback: F,
+    ) -> ConsumerHandle
+    where
+        F: Fn(Delivery) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ()> + Send + 'static,
+    {
         let offset = match offset {
             Some(Offset::First) => OffsetSpecification::First,
             Some(Offset::Last) => OffsetSpecification::Last,
@@ -112,15 +123,7 @@ impl RabbitMqAdapter {
             while let Some(delivery) = consumer.next().await {
                 match delivery {
                     Ok(delivery) => {
-                        println!(
-                            "Got message {:?} with offset {}",
-                            delivery
-                                .message()
-                                .data()
-                                .map(|m| String::from_utf8(m.to_vec()))
-                                .unwrap(),
-                            delivery.offset()
-                        );
+                        callback(delivery).await;
                     }
                     Err(e) => {
                         println!("Error receiving message: {:?}", e);
