@@ -1,5 +1,6 @@
-use chrono::Utc;
+#![allow(dead_code)]
 #[allow(clippy::useless_attribute)]
+use chrono::Utc;
 use rabbitmq_stream_client::error::ProducerPublishError;
 use rabbitmq_stream_client::error::StreamCreateError;
 use rabbitmq_stream_client::types::ByteCapacity;
@@ -22,6 +23,8 @@ pub enum Offset {
     First,
     Last,
     Next,
+
+    Timestamp(i64),
     Offset(u64),
 }
 
@@ -105,6 +108,7 @@ impl RabbitMqAdapter {
             Some(Offset::First) => OffsetSpecification::First,
             Some(Offset::Last) => OffsetSpecification::Last,
             Some(Offset::Next) => OffsetSpecification::Next,
+            Some(Offset::Timestamp(offset)) => OffsetSpecification::Timestamp(offset),
             Some(Offset::Offset(offset)) => OffsetSpecification::Offset(offset),
             None => OffsetSpecification::Next,
         };

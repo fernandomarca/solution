@@ -1,7 +1,9 @@
-use crate::adapters::rabbitmq_adapter::RabbitMqAdapter;
-use crate::db::schema::posts;
-use crate::db::DbSqlx;
+use crate::infra::adapters::rabbitmq_adapter::RabbitMqAdapter;
+use crate::infra::db::schema::posts;
+use crate::infra::db::DbSqlx;
 use diesel::prelude::*;
+use rocket::get;
+use rocket::post;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use serde::Deserialize;

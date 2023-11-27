@@ -1,7 +1,7 @@
 [default]
 address = "127.0.0.1"
 port = 8000
-workers = 16
+workers = 64
 max_blocking = 512
 keep_alive = 5
 ident = "Rocket"

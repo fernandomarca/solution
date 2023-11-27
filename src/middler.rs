@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use rocket::fairing::Fairing;
 use rocket::fairing::Info;
 use rocket::fairing::Kind;

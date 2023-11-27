@@ -19,8 +19,8 @@ use serde::Deserialize;
 use serde::Serialize;
 extern crate rocket_db_pools;
 
-use crate::db::schema::posts;
-use crate::db::Db;
+use crate::infra::db::schema::posts;
+use crate::infra::db::Db;
 use crate::posts::Post;
 use rocket::response::{status::Created, Debug};
 use rocket_db_pools::diesel::prelude::*;
