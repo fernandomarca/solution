@@ -1,10 +1,10 @@
-pub mod input_id;
-pub mod input_validator;
 pub mod price;
+pub mod supply_id;
+pub mod supply_validator;
 
-use self::input_id::InputId;
-use self::input_validator::InputValidator;
 use self::price::Price;
+use self::supply_id::SupplyId;
+use self::supply_validator::SupplyValidator;
 use super::aggregate_root::AggregateRoot;
 use super::entity::Entity;
 use super::validation::notification::Notification;
@@ -21,18 +21,18 @@ Input{
 */
 
 #[derive(Clone, Debug)]
-pub struct Input<'a> {
-    id: InputId,
+pub struct Supply<'a> {
+    id: SupplyId,
     name: &'a str,
     price: Vec<Price>,
     created_at: DateTime<Utc>,
     updated_at: Option<DateTime<Utc>>,
 }
 
-impl<'a> Input<'a> {
+impl<'a> Supply<'a> {
     pub fn new(name: &'a str, price: Vec<Price>) -> Result<Self, Notification> {
         let input = Self {
-            id: InputId::unique(),
+            id: SupplyId::unique(),
             name,
             price,
             created_at: Utc::now(),
@@ -41,24 +41,24 @@ impl<'a> Input<'a> {
         input.self_validate()
     }
 
-    pub fn with(id: InputId, name: &'a str, price: Vec<Price>) -> Result<Self, Notification> {
-        let input = Self {
+    pub fn with(id: SupplyId, name: &'a str, price: Vec<Price>) -> Result<Self, Notification> {
+        let supply = Self {
             id,
             name,
             price,
             created_at: Utc::now(),
             updated_at: None,
         };
-        input.self_validate()
+        supply.self_validate()
     }
 
-    pub fn with_input(input: &'a Input) -> Self {
+    pub fn with_input(supply: &'a Supply) -> Self {
         Self {
-            id: input.id.to_owned(),
-            name: input.name,
-            price: input.price.to_owned(),
-            created_at: input.created_at.to_owned(),
-            updated_at: input.updated_at.to_owned(),
+            id: supply.id.to_owned(),
+            name: supply.name,
+            price: supply.price.to_owned(),
+            created_at: supply.created_at.to_owned(),
+            updated_at: supply.updated_at.to_owned(),
         }
     }
 
@@ -67,14 +67,14 @@ impl<'a> Input<'a> {
         name: Option<&'a str>,
         price: Option<Vec<Price>>,
     ) -> Result<Self, Notification> {
-        let input = Self {
+        let supply = Self {
             id: self.id.to_owned(),
             name: name.unwrap_or(self.name),
             price: price.unwrap_or(self.price.to_owned()),
             created_at: self.created_at.to_owned(),
             updated_at: Some(Utc::now()),
         };
-        input.self_validate()
+        supply.self_validate()
     }
 
     fn self_validate(self) -> Result<Self, Notification> {
@@ -109,19 +109,19 @@ impl<'a> Input<'a> {
     }
 }
 
-impl<'a> Entity for Input<'a> {
-    type Id = InputId;
-    fn get_id(&self) -> &InputId {
+impl<'a> Entity for Supply<'a> {
+    type Id = SupplyId;
+    fn get_id(&self) -> &SupplyId {
         &self.id
     }
 
     fn validate(&self, handler: &mut dyn ValidationHandler) {
-        let mut validator = InputValidator::new(self, handler);
+        let mut validator = SupplyValidator::new(self, handler);
         validator.validate();
     }
 }
 
-impl<'a> AggregateRoot for Input<'a> {}
+impl<'a> AggregateRoot for Supply<'a> {}
 
 #[cfg(test)]
 mod input_tests {
@@ -131,7 +131,7 @@ mod input_tests {
 
     #[test]
     fn create_a_valid_input() {
-        let input = Input::new("cimento", vec![Price::new("sc", 25000)]);
+        let input = Supply::new("cimento", vec![Price::new("sc", 25000)]);
         assert!(input.is_ok());
 
         if let Ok(value) = input {
@@ -151,14 +151,14 @@ mod input_tests {
 
     #[test]
     fn create_a_valid_input_with_id_param() {
-        let input = Input::with(
-            InputId::from_str("fake_id"),
+        let supply = Supply::with(
+            SupplyId::from_str("fake_id"),
             "cimento",
             vec![Price::new("sc", 25000)],
         );
-        assert!(input.is_ok());
+        assert!(supply.is_ok());
 
-        if let Ok(value) = input {
+        if let Ok(value) = supply {
             assert_eq!(value.get_name(), "cimento");
             assert!(!value.get_id().get_value().is_empty());
             assert_eq!(value.get_id().get_value(), "fake_id");
@@ -176,14 +176,14 @@ mod input_tests {
 
     #[test]
     fn create_a_valid_input_with_id_param_uuid() {
-        let input = Input::with(
-            InputId::from_uuid(Uuid::nil()),
+        let supply = Supply::with(
+            SupplyId::from_uuid(Uuid::nil()),
             "cimento",
             vec![Price::new("sc", 25000)],
         );
-        assert!(input.is_ok());
+        assert!(supply.is_ok());
 
-        if let Ok(value) = input {
+        if let Ok(value) = supply {
             assert_eq!(value.get_name(), "cimento");
             assert!(!value.get_id().get_value().is_empty());
             assert_eq!(
@@ -204,7 +204,7 @@ mod input_tests {
 
     #[test]
     fn create_an_invalid_input_with_name_empty() {
-        let input = Input::new("", vec![Price::new("sc", 25000)]);
+        let input = Supply::new("", vec![Price::new("sc", 25000)]);
         assert!(input.is_err());
 
         if let Err(error) = input {
@@ -226,10 +226,10 @@ mod input_tests {
 
     #[test]
     fn create_an_invalid_input_with_price_empty() {
-        let input = Input::new("cimento", vec![]);
-        assert!(input.is_err());
+        let supply = Supply::new("cimento", vec![]);
+        assert!(supply.is_err());
 
-        if let Err(error) = input {
+        if let Err(error) = supply {
             assert!(error.has_errors());
             assert_eq!(error.get_errors().len(), 1);
             assert_eq!(
@@ -242,14 +242,14 @@ mod input_tests {
 
     #[test]
     fn create_an_invalid_input_with_id_empty() {
-        let input = Input::with(
-            InputId::from_str(""),
+        let supply = Supply::with(
+            SupplyId::from_str(""),
             "cimento",
             vec![Price::new("sc", 25000)],
         );
-        assert!(input.is_err());
+        assert!(supply.is_err());
 
-        if let Err(error) = input {
+        if let Err(error) = supply {
             assert!(error.has_errors());
             assert_eq!(error.get_errors().len(), 1);
             assert_eq!(
@@ -262,39 +262,39 @@ mod input_tests {
 
     #[test]
     fn update_name_and_price_a_valid_input() {
-        let input = Input::new("cimento", vec![Price::new("sc", 26000)]);
+        let supply = Supply::new("cimento", vec![Price::new("sc", 26000)]);
 
-        if let Ok(value) = input {
-            let input = value
+        if let Ok(value) = supply {
+            let supply = value
                 .update(
                     Some("cimento atualizado"),
                     Some(vec![Price::new("sc", 2500), Price::new("kg", 250)]),
                 )
                 .unwrap();
 
-            assert_eq!(input.get_name(), "cimento atualizado");
-            assert!(!input.get_id().get_value().is_empty());
-            assert_eq!(input.get_prices().len(), 2);
-            assert_eq!(input.get_prices().get(0).unwrap().get_unit(), "sc");
-            assert_eq!(input.get_prices().get(0).unwrap().get_value(), 2500);
+            assert_eq!(supply.get_name(), "cimento atualizado");
+            assert!(!supply.get_id().get_value().is_empty());
+            assert_eq!(supply.get_prices().len(), 2);
+            assert_eq!(supply.get_prices().get(0).unwrap().get_unit(), "sc");
+            assert_eq!(supply.get_prices().get(0).unwrap().get_value(), 2500);
             assert_eq!(
-                input.get_prices_to_string(),
+                supply.get_prices_to_string(),
                 vec!["unit:sc value:2500", "unit:kg value:250"]
             );
             assert_eq!(
-                input.get_prices().get(0).unwrap().get_value_formatted(),
+                supply.get_prices().get(0).unwrap().get_value_formatted(),
                 "25,00"
             );
-            assert!(!input.get_created_at().to_rfc3339().is_empty());
-            assert!(input.get_updated_at().is_some());
+            assert!(!supply.get_created_at().to_rfc3339().is_empty());
+            assert!(supply.get_updated_at().is_some());
         }
     }
 
     #[test]
     fn create_a_valid_input_with_other_input() {
-        let input = Input::new("cimento", vec![Price::new("sc", 26000)]);
-        if let Ok(value) = input {
-            let other = Input::with_input(&value);
+        let supply: Result<_, _> = Supply::new("cimento", vec![Price::new("sc", 26000)]);
+        if let Ok(value) = supply {
+            let other = Supply::with_input(&value);
 
             assert_eq!(other.get_name(), "cimento");
             assert!(!other.get_id().get_value().is_empty());

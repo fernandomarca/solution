@@ -1,4 +1,4 @@
-use super::Input;
+use super::Supply;
 use crate::domain::entity::Entity;
 use crate::domain::identifier::Identifier;
 use crate::domain::validation::error::CommonError;
@@ -8,21 +8,21 @@ use crate::domain::validation::validator::Validator;
 const NAME_MIN_LENGTH: usize = 1;
 const NAME_MAX_LENGTH: usize = 255;
 
-pub struct InputValidator<'a> {
-    pub input: &'a Input<'a>,
+pub struct SupplyValidator<'a> {
+    pub supply: &'a Supply<'a>,
     pub validation_handler: &'a mut dyn ValidationHandler,
 }
 
-impl<'a> InputValidator<'a> {
-    pub fn new(input: &'a Input, validation_handler: &'a mut dyn ValidationHandler) -> Self {
-        InputValidator {
-            input,
+impl<'a> SupplyValidator<'a> {
+    pub fn new(supply: &'a Supply, validation_handler: &'a mut dyn ValidationHandler) -> Self {
+        SupplyValidator {
+            supply,
             validation_handler,
         }
     }
 
     fn validate_id(&mut self) {
-        let var = self.input.get_id().get_value().trim();
+        let var = self.supply.get_id().get_value().trim();
 
         if var.is_empty() {
             self.validation_handler.append(Box::new(CommonError {
@@ -32,7 +32,7 @@ impl<'a> InputValidator<'a> {
     }
 
     fn validate_name(&mut self) {
-        let var = self.input.name.trim();
+        let var = self.supply.name.trim();
 
         if var.is_empty() {
             self.validation_handler.append(Box::new(CommonError {
@@ -51,7 +51,7 @@ impl<'a> InputValidator<'a> {
     }
 
     fn validate_price(&mut self) {
-        let var = self.input.price.to_owned();
+        let var = self.supply.price.to_owned();
 
         if var.is_empty() {
             self.validation_handler.append(Box::new(CommonError {
@@ -61,7 +61,7 @@ impl<'a> InputValidator<'a> {
     }
 }
 
-impl<'a> Validator for InputValidator<'a> {
+impl<'a> Validator for SupplyValidator<'a> {
     fn validate(&mut self) {
         self.validate_id();
         self.validate_name();

@@ -26,6 +26,7 @@ rabbitmq-stream-client = "0.4.1"
 
 uuid = { version = "1.6.1", features = ["v4"] }
 
+rust_decimal = "1.33.1"
 num-format = "0.4.4"
 
 [dependencies.rocket_db_pools]
