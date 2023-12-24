@@ -1,7 +1,7 @@
 use super::Supply;
 use crate::domain::entity::Entity;
 use crate::domain::identifier::Identifier;
-use crate::domain::validation::error::CommonError;
+use crate::domain::validation::error::CustomError;
 use crate::domain::validation::validation_handler::ValidationHandler;
 use crate::domain::validation::validator::Validator;
 
@@ -25,9 +25,8 @@ impl<'a> SupplyValidator<'a> {
         let var = self.supply.get_id().get_value().trim();
 
         if var.is_empty() {
-            self.validation_handler.append(Box::new(CommonError {
-                message: "'id' should not be empty".to_owned(),
-            }));
+            self.validation_handler
+                .append(&CustomError::Error("'id' should not be empty".to_string()));
         }
     }
 
@@ -35,9 +34,9 @@ impl<'a> SupplyValidator<'a> {
         let var = self.supply.name.trim();
 
         if var.is_empty() {
-            self.validation_handler.append(Box::new(CommonError {
-                message: "'name' should not be empty".to_owned(),
-            }));
+            self.validation_handler.append(&CustomError::Error(
+                "'name' should not be empty".to_string(),
+            ));
         }
 
         if var.len() < NAME_MIN_LENGTH || var.len() > NAME_MAX_LENGTH {
@@ -45,8 +44,7 @@ impl<'a> SupplyValidator<'a> {
                 "'name' must be between {} and {} characters",
                 NAME_MIN_LENGTH, NAME_MAX_LENGTH
             );
-            self.validation_handler
-                .append(Box::new(CommonError::new(&message)));
+            self.validation_handler.append(&CustomError::Error(message));
         }
     }
 
@@ -54,9 +52,9 @@ impl<'a> SupplyValidator<'a> {
         let var = self.supply.price.to_owned();
 
         if var.is_empty() {
-            self.validation_handler.append(Box::new(CommonError {
-                message: "'price' should not be empty".to_owned(),
-            }));
+            self.validation_handler.append(&CustomError::Error(
+                "'price' should not be empty".to_string(),
+            ));
         }
     }
 }

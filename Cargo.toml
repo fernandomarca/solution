@@ -26,8 +26,12 @@ rabbitmq-stream-client = "0.4.1"
 
 uuid = { version = "1.6.1", features = ["v4"] }
 
-rust_decimal = "1.33.1"
+rust_decimal = { version = "1.33.1", features = ["serde", "serde-float"] }
 num-format = "0.4.4"
+rust_decimal_macros = "1.33.1"
+
+thiserror = "1.0.51"
+anyhow = "1.0.76"
 
 [dependencies.rocket_db_pools]
 version = "0.1.0"

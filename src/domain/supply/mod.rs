@@ -124,9 +124,10 @@ impl<'a> Entity for Supply<'a> {
 impl<'a> AggregateRoot for Supply<'a> {}
 
 #[cfg(test)]
-mod input_tests {
+mod supply_tests {
     use super::*;
     use crate::domain::identifier::Identifier;
+    use rust_decimal_macros::dec;
     use uuid::Uuid;
 
     #[test]
@@ -139,10 +140,10 @@ mod input_tests {
             assert!(!value.get_id().get_value().is_empty());
             assert_eq!(value.get_prices().len(), 1);
             assert_eq!(value.get_prices().get(0).unwrap().get_unit(), "sc");
-            assert_eq!(value.get_prices().get(0).unwrap().get_value(), 25000);
+            assert_eq!(value.get_prices().get(0).unwrap().get_value(), dec!(250.00));
             assert_eq!(
                 value.get_prices().get(0).unwrap().get_value_formatted(),
-                "250,00"
+                "250.00"
             );
             assert!(!value.get_created_at().to_rfc3339().is_empty());
             assert!(value.get_updated_at().is_none());
@@ -164,10 +165,10 @@ mod input_tests {
             assert_eq!(value.get_id().get_value(), "fake_id");
             assert_eq!(value.get_prices().len(), 1);
             assert_eq!(value.get_prices().get(0).unwrap().get_unit(), "sc");
-            assert_eq!(value.get_prices().get(0).unwrap().get_value(), 25000);
+            assert_eq!(value.get_prices().get(0).unwrap().get_value(), dec!(250.00));
             assert_eq!(
                 value.get_prices().get(0).unwrap().get_value_formatted(),
-                "250,00"
+                "250.00"
             );
             assert!(!value.get_created_at().to_rfc3339().is_empty());
             assert!(value.get_updated_at().is_none());
@@ -192,10 +193,10 @@ mod input_tests {
             );
             assert_eq!(value.get_prices().len(), 1);
             assert_eq!(value.get_prices().get(0).unwrap().get_unit(), "sc");
-            assert_eq!(value.get_prices().get(0).unwrap().get_value(), 25000);
+            assert_eq!(value.get_prices().get(0).unwrap().get_value(), dec!(250.00));
             assert_eq!(
                 value.get_prices().get(0).unwrap().get_value_formatted(),
-                "250,00"
+                "250.00"
             );
             assert!(!value.get_created_at().to_rfc3339().is_empty());
             assert!(value.get_updated_at().is_none());
@@ -276,14 +277,14 @@ mod input_tests {
             assert!(!supply.get_id().get_value().is_empty());
             assert_eq!(supply.get_prices().len(), 2);
             assert_eq!(supply.get_prices().get(0).unwrap().get_unit(), "sc");
-            assert_eq!(supply.get_prices().get(0).unwrap().get_value(), 2500);
+            assert_eq!(supply.get_prices().get(0).unwrap().get_value(), dec!(25.00));
             assert_eq!(
                 supply.get_prices_to_string(),
-                vec!["unit:sc value:2500", "unit:kg value:250"]
+                vec!["unit:sc value:25.00", "unit:kg value:2.50"]
             );
             assert_eq!(
                 supply.get_prices().get(0).unwrap().get_value_formatted(),
-                "25,00"
+                "25.00"
             );
             assert!(!supply.get_created_at().to_rfc3339().is_empty());
             assert!(supply.get_updated_at().is_some());
@@ -300,11 +301,11 @@ mod input_tests {
             assert!(!other.get_id().get_value().is_empty());
             assert_eq!(other.get_prices().len(), 1);
             assert_eq!(other.get_prices().get(0).unwrap().get_unit(), "sc");
-            assert_eq!(other.get_prices().get(0).unwrap().get_value(), 26000);
-            assert_eq!(other.get_prices_to_string(), vec!["unit:sc value:26000"]);
+            assert_eq!(other.get_prices().get(0).unwrap().get_value(), dec!(260.00));
+            assert_eq!(other.get_prices_to_string(), vec!["unit:sc value:260.00"]);
             assert_eq!(
                 other.get_prices().get(0).unwrap().get_value_formatted(),
-                "260,00"
+                "260.00"
             );
             assert!(!other.get_created_at().to_rfc3339().is_empty());
             assert!(other.get_updated_at().is_none());
